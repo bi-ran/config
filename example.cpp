@@ -8,10 +8,7 @@
 #include "utility.h"
 
 int main(int argc, char* argv[]) {
-    if (argc < 2) {
-        std::cout << "usage: ./example [config]" << std::endl;
-        return 1;
-    }
+    if (argc < 2) { THROW("not enough arguments", "usage: ./example [config]", EXIT); }
 
     /* configurer usage */
     configurer* conf = new configurer(argv[1]);

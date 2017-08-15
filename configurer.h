@@ -13,7 +13,7 @@
 
 #include "utility.h"
 
-#define BLOCK STRINGIFY(configurer)
+#define BLOCK configurer
 class configurer {
   public:
     configurer() { types = new registry(); options = new cornucopia(); token = ' '; }
@@ -70,7 +70,7 @@ struct visitor : visitor_base<REGISTRY_TYPELIST> {
         T* value = constructor();
         line_stream >> (*value);
 
-        if (line_stream.bad()) { THROW(tag, "read error"); }
+        if (line_stream.bad()) { THROW(tag, "read error", RETV); }
 
         config->set(tag, *value);
     }
@@ -79,7 +79,7 @@ struct visitor : visitor_base<REGISTRY_TYPELIST> {
 
 void configurer::parse(std::string file) {
     std::ifstream file_stream(file);
-    if (!file_stream) { THROW(file, "invalid file", 1); }
+    if (!file_stream) { THROW(file, "invalid file", EXIT); }
 
     std::string line;
     std::vector<std::string> lines;
@@ -110,7 +110,7 @@ void configurer::parse(std::string file) {
         if (tag.empty()) { continue; }
         for (char& c : tag) {
             if (!std::isgraph(c)) {
-                THROW(tag, "invalid char in tag", 1);
+                THROW(tag, "invalid char in tag", EXIT);
             }
         }
 

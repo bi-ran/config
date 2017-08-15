@@ -32,11 +32,12 @@ std::ostream& operator<<(std::ostream& s, std::vector<T> v) {
 }
 
 /* error handling */
-static inline void throw_error(std::string name, std::string object, std::string description) {
-    std::cout << "[" << name << "] '" << object << "': " << description << std::endl;
+static inline void print_error(std::string name, std::string error, std::string description) {
+    std::cout << "[" << name << "] '" << error << "': " << description << std::endl;
 }
 
 #define STRINGIFY(A) #A
+#define STRINGIFYMACRO(A) STRINGIFY(A)
 #define CONCATENATE(A, B) A##B
 #define CONCATENATEMACRO(A, B) CONCATENATE(A, B)
 #define PLACE(A, B) A B
@@ -46,19 +47,22 @@ static inline void throw_error(std::string name, std::string object, std::string
 #define VA_SIZE(...) PLACE(VA_COUNT, (EXPAND __VA_ARGS__ (), 0, 3, 2, 1) )
 #define VA_SELECT(NAME, ...) CONCATENATEMACRO(NAME, VA_SIZE(__VA_ARGS__))
 
-#define FATAL0 return
-#define FATAL1 exit(1)
-#define FATAL(bool) FATAL##bool
+#define FATALNOP
+#define FATALCONT continue
+#define FATALRETV return
+#define FATALRETI return 1
+#define FATALEXIT exit(1)
+#define FATAL(LEVEL) CONCATENATEMACRO(FATAL, LEVEL)
 
 #define THROW(...) VA_SELECT(THROW, __VA_ARGS__)(__VA_ARGS__)
 
 #define THROW0() THROW3(, "warning", 0)
 #define THROW1(description) THROW3(, description, 0)
-#define THROW2(object, description) THROW3(object, description, 0)
-#define THROW3(object, description, fatal)              \
-    do {                                                \
-        throw_error(BLOCK, object, description);        \
-        FATAL(fatal);                                   \
-    } while (0)                                         \
+#define THROW2(error, description) THROW3(error, description, 0)
+#define THROW3(error, description, fatal)                       \
+    do {                                                        \
+        print_error(STRINGIFYMACRO(BLOCK), error, description); \
+        FATAL(fatal);                                           \
+    } while (0)                                                 \
 
 #endif  /* _UTILITY_H */
