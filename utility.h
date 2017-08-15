@@ -52,8 +52,10 @@ static inline void throw_error(std::string name, std::string object, std::string
 
 #define THROW1(description) THROW3(, description, 0)
 #define THROW2(object, description) THROW3(object, description, 0)
-#define THROW3(object, description, fatal)      \
-    throw_error(BLOCK, object, description);    \
-    FATAL(fatal);                               \
+#define THROW3(object, description, fatal)              \
+    do {                                                \
+        throw_error(BLOCK, object, description);        \
+        FATAL(fatal);                                   \
+    } while (0)                                         \
 
 #endif  /* _UTILITY_H */
