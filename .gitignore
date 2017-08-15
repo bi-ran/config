@@ -1,0 +1,7 @@
+# ignore files without extensions
+*
+!*.*
+!*/
+
+# temporary files
+*.swp

@@ -1,0 +1,23 @@
+@ headers
+
+utility.h
+  $ operator<< for std::vector
+  $ error handling cpp macros
+
+cornucopia.h
+  $ container of everything
+  > requires --std=c++14
+
+registry.h
+  $ factory: constructs object given type (std::string)
+
+configurer.h
+  $ configuration parser
+  > requires --std=c++1z
+
+examples:
+  + example.cpp
+  + example.conf
+
+  clang++ --std=c++1z example.cpp -o example -O2
+  ./example example.conf
