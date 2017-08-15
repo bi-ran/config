@@ -39,9 +39,11 @@ static inline void throw_error(std::string name, std::string object, std::string
 #define STRINGIFY(A) #A
 #define CONCATENATE(A, B) A##B
 #define CONCATENATEMACRO(A, B) CONCATENATE(A, B)
+#define PLACE(A, B) A B
+#define EXPAND() ,,,
 
-#define VA_COUNT(_1, _2, _3, N, ...) N
-#define VA_SIZE(...) VA_COUNT(__VA_ARGS__, 3, 2, 1)
+#define VA_COUNT(_0, _1, _2, _3, N, ...) N
+#define VA_SIZE(...) PLACE(VA_COUNT, (EXPAND __VA_ARGS__ (), 0, 3, 2, 1) )
 #define VA_SELECT(NAME, ...) CONCATENATEMACRO(NAME, VA_SIZE(__VA_ARGS__))
 
 #define FATAL0 return
@@ -50,6 +52,7 @@ static inline void throw_error(std::string name, std::string object, std::string
 
 #define THROW(...) VA_SELECT(THROW, __VA_ARGS__)(__VA_ARGS__)
 
+#define THROW0() THROW3(, "warning", 0)
 #define THROW1(description) THROW3(, description, 0)
 #define THROW2(object, description) THROW3(object, description, 0)
 #define THROW3(object, description, fatal)              \
