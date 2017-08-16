@@ -96,9 +96,10 @@ void configurer::parse(std::string file) {
         std::string identifier;
         line_stream >> identifier;
 
+        trim(identifier);
         if (identifier == "token") {
-            if ((token = line_stream.peek()) == EOF)
-                token = ' ';
+            if (line_stream.peek() == EOF) { token = ' '; }
+            else { line_stream >> token; }
             continue;
         }
 
