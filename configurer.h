@@ -56,8 +56,9 @@ struct delimiter : std::ctype<char> {
     delimiter(char token) : std::ctype<char>(get_table(token), false, 0) {}
 
     static const std::ctype_base::mask* get_table(char token) {
-        static std::ctype_base::mask rc[std::ctype<char>::table_size];
-        rc[token] = std::ctype_base::space;
+        static std::vector<std::ctype_base::mask> rc(std::ctype<char>::classic_table(), std::ctype<char>::classic_table() + std::ctype<char>::table_size);
+        rc[' '] &= ~std::ctype_base::space;
+        rc[token] |= std::ctype_base::space;
 
         return &rc[0];
     }
@@ -115,6 +116,7 @@ void configurer::parse(std::string file) {
             }
         }
 
+        line_stream.imbue(std::locale(std::locale(), new delimiter(' ')));
         line_stream.imbue(std::locale(std::locale(), new delimiter(token)));
         visit(visitor{}, identifier, line_stream, tag);
     }
