@@ -15,8 +15,8 @@ int main(int argc, char* argv[]) {
 
     int a = conf->get<int>("a");
     float b = conf->get<float>("b");
-    std::vector<int> c = conf->get<std::vector<int>>("c");
-    std::string d = conf->get<std::string>("d");
+    std::string c = conf->get<std::string>("c");
+    std::vector<int> d = conf->get<std::vector<int>>("d");
     std::vector<std::string> e = conf->get<std::vector<std::string>>("e");
     std::vector<std::string> f = conf->get<std::vector<std::string>>("f");
 
