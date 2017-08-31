@@ -5,6 +5,16 @@
 #include <algorithm>
 #include <iostream>
 
+/* operator<< overload for std::vector<T> */
+template<class T>
+std::ostream& operator<<(std::ostream& s, std::vector<T> v) {
+    s << "◆";
+    adjacent_difference(begin(v), end(v), std::ostream_iterator<T>(s), [&s](T a, T)->T { return s << "▪", a;} );
+    s << "◆";
+    return s;
+}
+
+/* whitespace trimming for std::string */
 static inline void ltrim(std::string& s) {
     s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int c) {
         return std::isgraph(c);
@@ -20,15 +30,6 @@ static inline void rtrim(std::string& s) {
 static inline void trim(std::string& s) {
     ltrim(s);
     rtrim(s);
-}
-
-/* operator<< overload for std::vector<T> */
-template<class T>
-std::ostream& operator<<(std::ostream& s, std::vector<T> v) {
-    s << "[ ";
-    std::copy(begin(v), end(v), std::ostream_iterator<T>(s, " "));
-    s << "]";
-    return s;
 }
 
 /* error handling */
