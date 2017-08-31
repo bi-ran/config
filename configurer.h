@@ -13,10 +13,40 @@
 
 #include "utility.h"
 
+struct delimiter : std::ctype<char> {
+    delimiter(char token) : std::ctype<char>(get_table(token), false, 0) {}
+
+    static std::vector<std::ctype_base::mask> rc;
+
+    static const std::ctype_base::mask* get_table(char token) {
+        set_table(token);
+        return &rc[0];
+    }
+
+    static void set_table(char token) {
+        rc[' '] &= ~std::ctype_base::space;
+        rc[token] |= std::ctype_base::space;
+    }
+
+    static void reset_table(char token) {
+        rc[' '] |= std::ctype_base::space;
+        rc[token] &= ~std::ctype_base::space;
+    }
+};
+
+std::vector<std::ctype_base::mask> delimiter::rc;
+
 #define BLOCK configurer
 class configurer {
   public:
-    configurer() { types = new registry(); options = new cornucopia(); token = ' '; }
+    configurer() {
+        types = new registry();
+        options = new cornucopia();
+        token = ' ';
+
+        delimiter::rc = std::vector<std::ctype_base::mask>(std::ctype<char>::classic_table(), std::ctype<char>::classic_table() + std::ctype<char>::table_size);
+    }
+
     configurer(std::string file) : configurer() { parse(file); }
 
     void load(std::string file) { parse(file); }
@@ -50,18 +80,6 @@ class configurer {
     cornucopia* options;
 
     char token;
-};
-
-struct delimiter : std::ctype<char> {
-    delimiter(char token) : std::ctype<char>(get_table(token), false, 0) {}
-
-    static const std::ctype_base::mask* get_table(char token) {
-        static std::vector<std::ctype_base::mask> rc(std::ctype<char>::classic_table(), std::ctype<char>::classic_table() + std::ctype<char>::table_size);
-        rc[' '] &= ~std::ctype_base::space;
-        rc[token] |= std::ctype_base::space;
-
-        return &rc[0];
-    }
 };
 
 #define ELEMENT(type) type, std::vector<type>
@@ -99,14 +117,18 @@ void configurer::parse(std::string file) {
 
         trim(identifier);
         if (identifier == "token") {
+            delimiter::reset_table(token);
             if (line_stream.peek() == EOF) { token = ' '; }
             else { line_stream >> token; }
             continue;
         }
 
-        std::string tag;
         line_stream.imbue(std::locale(std::locale(), new delimiter('=')));
+        std::string tag;
         line_stream >> tag;
+        delimiter::reset_table('=');
+
+        line_stream.ignore(1);
 
         trim(tag);
         if (tag.empty()) { continue; }
@@ -116,9 +138,9 @@ void configurer::parse(std::string file) {
             }
         }
 
-        line_stream.imbue(std::locale(std::locale(), new delimiter(' ')));
         line_stream.imbue(std::locale(std::locale(), new delimiter(token)));
         visit(visitor{}, identifier, line_stream, tag);
+        delimiter::reset_table(token);
     }
 }
 
