@@ -67,13 +67,13 @@ class configurer {
     void parse(std::string file);
 
     template<class T>
-    void visit(T&& visitor, std::string identifier, std::stringstream& line_stream, std::string tag);
+    void visit(T&& visitor, std::string identifier, std::stringstream& line_stream);
 
     template<class T, template<class...> class TLIST, class... TYPES>
-    void visit_impl(T&& visitor, std::string identifier, std::stringstream& line_stream, std::string tag, TLIST<TYPES...>);
+    void visit_impl(T&& visitor, std::string identifier, std::stringstream& line_stream, TLIST<TYPES...>);
 
     template<class T, class U>
-    void visit_impl_helper(T& visitor, std::string identifier, std::stringstream& line_stream, std::string tag);
+    void visit_impl_helper(T& visitor, std::string identifier, std::stringstream& line_stream);
 
   private:
     registry* types;
@@ -85,13 +85,9 @@ class configurer {
 #define ELEMENT(type) type, std::vector<type>
 struct visitor : visitor_base<REGISTRY_TYPELIST> {
     template<class T>
-    void operator()(std::function<T*()> constructor, std::stringstream& line_stream, std::string tag, configurer* config) {
-        T* value = constructor();
-        line_stream >> (*value);
-
-        if (line_stream.bad()) { THROW(tag, "read error", RETV); }
-
-        config->set(tag, *value);
+    T* operator()(std::function<T*()> constructor, std::stringstream& line_stream) {
+        T* value = constructor(); line_stream >> (*value);
+        return value;
     }
 };
 #undef ELEMENT
@@ -106,14 +102,10 @@ void configurer::parse(std::string file) {
         lines.push_back(line);
 
     for (std::size_t i=0; i<lines.size(); ++i) {
-        ltrim(lines[i]);
-        if (lines[i].empty() || lines[i][0] == '#')
-            continue;
+        ltrim(lines[i]); if (lines[i].empty() || lines[i][0] == '#') { continue; }
 
         std::stringstream line_stream(lines[i]);
-
-        std::string identifier;
-        line_stream >> identifier;
+        std::string identifier; line_stream >> identifier;
 
         trim(identifier);
         if (identifier == "token") {
@@ -123,43 +115,42 @@ void configurer::parse(std::string file) {
             continue;
         }
 
-        line_stream.imbue(std::locale(std::locale(), new delimiter('=')));
-        std::string tag;
-        line_stream >> tag;
-        delimiter::reset_table('=');
-
-        line_stream.ignore(1);
-
-        trim(tag);
-        if (tag.empty()) { continue; }
-        for (char& c : tag) {
-            if (!std::isgraph(c)) {
-                THROW(tag, "invalid char in tag", EXIT);
-            }
-        }
-
-        line_stream.imbue(std::locale(std::locale(), new delimiter(token)));
-        visit(visitor{}, identifier, line_stream, tag);
-        delimiter::reset_table(token);
+        visit(visitor{}, identifier, line_stream);
     }
 }
 
 template<class T>
-void configurer::visit(T&& visitor, std::string identifier, std::stringstream& line_stream, std::string tag) {
-    visit_impl(visitor, identifier, line_stream, tag, typename std::decay_t<T>::types{});
+void configurer::visit(T&& visitor, std::string identifier, std::stringstream& line_stream) {
+    visit_impl(visitor, identifier, line_stream, typename std::decay_t<T>::types{});
 }
 
 /* C++ 17 feature required */
 template<class T, template<class...> class TLIST, class... TYPES>
-void configurer::visit_impl(T&& visitor, std::string identifier, std::stringstream& line_stream, std::string tag, TLIST<TYPES...>) {
-    (..., visit_impl_helper<std::decay_t<T>, TYPES>(visitor, identifier, line_stream, tag));
+void configurer::visit_impl(T&& visitor, std::string identifier, std::stringstream& line_stream, TLIST<TYPES...>) {
+    (..., visit_impl_helper<std::decay_t<T>, TYPES>(visitor, identifier, line_stream));
 }
 
 template<class T, class U>
-void configurer::visit_impl_helper(T& visitor, std::string identifier, std::stringstream& line_stream, std::string tag) {
+void configurer::visit_impl_helper(T& visitor, std::string identifier, std::stringstream& line_stream) {
     for (std::pair< std::string, std::function<U*()> > element : cornucopia::container< std::function<U*()> >[types->factory]) {
-        if (element.first == identifier)
-            visitor(element.second, line_stream, tag, this);
+        if (element.first == identifier) {
+            line_stream.imbue(std::locale(std::locale(), new delimiter('=')));
+            std::string tag; line_stream >> tag;
+            delimiter::reset_table('=');
+
+            line_stream.ignore(1);
+
+            trim(tag); if (tag.empty()) { continue; }
+            for (char& c : tag) { if (!std::isgraph(c)) { THROW(tag, "invalid char in tag", EXIT); } }
+
+            line_stream.imbue(std::locale(std::locale(), new delimiter(token)));
+            U* value = visitor(element.second, line_stream);
+            delimiter::reset_table(token);
+
+            if (line_stream.bad()) { THROW(tag, "read error", RETV); }
+
+            set(tag, *value);
+        }
     }
 }
 #undef BLOCK
