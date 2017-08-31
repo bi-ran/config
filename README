@@ -13,11 +13,11 @@ registry.h
 
 configurer.h
   $ configuration parser
-  > requires --std=c++1z
+  > requires --std=c++14
 
 examples:
   + example.cpp
   + example.conf
 
-  clang++ --std=c++1z example.cpp -o example -O2
+  clang++ --std=c++14 example.cpp -o example -O2
   ./example example.conf

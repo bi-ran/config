@@ -124,10 +124,11 @@ void configurer::visit(T&& visitor, std::string identifier, std::stringstream& l
     visit_impl(visitor, identifier, line_stream, typename std::decay_t<T>::types{});
 }
 
-/* C++ 17 feature required */
 template<class T, template<class...> class TLIST, class... TYPES>
 void configurer::visit_impl(T&& visitor, std::string identifier, std::stringstream& line_stream, TLIST<TYPES...>) {
-    (..., visit_impl_helper<std::decay_t<T>, TYPES>(visitor, identifier, line_stream));
+    (void)(int []){0, (visit_impl_helper<T, TYPES>(visitor, identifier, line_stream), 0)...};
+    /* C++ 17 feature required */
+    /* (..., visit_impl_helper<std::decay_t<T>, TYPES>(visitor, identifier, line_stream)); */
 }
 
 template<class T, class U>
