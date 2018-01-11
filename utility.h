@@ -1,40 +1,9 @@
 #ifndef _UTILITY_H
 #define _UTILITY_H
 
-#include <functional>
 #include <string>
 #include <algorithm>
 #include <iostream>
-
-/* member class */
-template<typename T>
-class member {
-  public:
-    member(T data, std::function<void(void)> before, std::function<void(void)> after) :
-        data(data), before(before), after(after) {}
-
-    member& operator=(const T& value) {
-        if (before) { before(); }
-        data = value;
-        if (after) { after(); }
-        return *this;
-    }
-
-    operator T() const { return data; }
-
-  private:
-    T data;
-    std::function<void(void)> before;
-    std::function<void(void)> after;
-};
-
-template<typename T>
-std::istream& operator>>(std::istream& s, member<T>& m) {
-    T data;
-    s >> data;
-    m = data;
-    return s;
-}
 
 /* operator<< overload for std::vector<T> */
 template<class T>
