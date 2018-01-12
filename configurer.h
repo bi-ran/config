@@ -98,11 +98,12 @@ void configurer::parse(std::string file) {
 
     std::string line;
     std::vector<std::string> lines;
-    while (std::getline(file_stream, line))
-        lines.push_back(line);
+    while (std::getline(file_stream, line)) {
+        ltrim(line); lines.push_back(line);
+    }
 
     for (std::size_t i=0; i<lines.size(); ++i) {
-        ltrim(lines[i]); if (lines[i].empty() || lines[i][0] == '#') { continue; }
+        if (lines[i].empty() || lines[i][0] == '#') { continue; }
 
         std::stringstream line_stream(lines[i]);
         std::string identifier; line_stream >> identifier;
