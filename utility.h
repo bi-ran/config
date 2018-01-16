@@ -1,7 +1,10 @@
 #ifndef _UTILITY_H
 #define _UTILITY_H
 
+#include <vector>
 #include <string>
+#include <functional>
+#include <numeric>
 #include <algorithm>
 #include <iostream>
 
