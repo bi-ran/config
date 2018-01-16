@@ -19,6 +19,7 @@ int main(int argc, char* argv[]) {
     std::vector<int> d = conf->get<std::vector<int>>("d");
     std::vector<std::string> e = conf->get<std::vector<std::string>>("e");
     std::vector<std::string> f = conf->get<std::vector<std::string>>("f");
+    std::vector<std::string> g = conf->get<std::vector<std::string>>("g");
 
     std::cout << "a: " << a << std::endl;
     std::cout << "b: " << b << std::endl;
@@ -26,6 +27,7 @@ int main(int argc, char* argv[]) {
     std::cout << "d: " << d << std::endl;
     std::cout << "e: " << e << std::endl;
     std::cout << "f: " << f << std::endl;
+    std::cout << "g: " << g << std::endl;
 
     return 0;
 }
