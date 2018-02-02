@@ -49,17 +49,16 @@ T* constructor() { return new T(); }
 
 #define REGISTRY_TYPELIST           \
     ELEMENT(bool),                  \
+    ELEMENT(char),                  \
     ELEMENT(short),                 \
-    ELEMENT(unsigned short),        \
     ELEMENT(int),                   \
-    ELEMENT(unsigned int),          \
     ELEMENT(long),                  \
-    ELEMENT(unsigned long),         \
-    ELEMENT(long long),             \
-    ELEMENT(unsigned long long),    \
+    ELEMENT(uint8_t),               \
+    ELEMENT(uint16_t),              \
+    ELEMENT(uint32_t),              \
+    ELEMENT(uint64_t),              \
     ELEMENT(float),                 \
     ELEMENT(double),                \
-    ELEMENT(long double),           \
     ELEMENT(std::string)            \
 
 #define BLOCK registry
