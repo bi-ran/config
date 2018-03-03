@@ -36,7 +36,6 @@ struct delimiter : std::ctype<char> {
 
 std::vector<std::ctype_base::mask> delimiter::rc;
 
-#define BLOCK configurer
 class configurer {
   public:
     configurer() {
@@ -94,7 +93,7 @@ struct visitor : visitor_base<REGISTRY_TYPELIST> {
 
 void configurer::parse(std::string file) {
     std::ifstream file_stream(file);
-    if (!file_stream) { THROW(file, "invalid file", EXIT); }
+    if (!file_stream) { THROW(configurer, file, "invalid file", EXIT); }
 
     std::string line;
     std::vector<std::string> lines;
@@ -148,18 +147,17 @@ void configurer::visit_impl_helper(T& visitor, std::string identifier, std::stri
             line_stream.ignore(1);
 
             trim(tag); if (tag.empty()) { continue; }
-            for (char& c : tag) { if (!std::isgraph(c)) { THROW(tag, "invalid char in tag", EXIT); } }
+            for (char& c : tag) { if (!std::isgraph(c)) { THROW(configurer, tag, "invalid char in tag", EXIT); } }
 
             line_stream.imbue(std::locale(std::locale(), new delimiter(token)));
             U* value = visitor(element.second, line_stream);
             delimiter::reset_table(token);
 
-            if (line_stream.bad()) { THROW(tag, "read error", RETV); }
+            if (line_stream.bad()) { THROW(configurer, tag, "read error", RETV); }
 
             set(tag, *value);
         }
     }
 }
-#undef BLOCK
 
 #endif  /* _CONFIGURER_H */

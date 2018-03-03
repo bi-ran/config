@@ -12,7 +12,6 @@
  * $ std::string tag required to identify objects
  */
 
-#define BLOCK cornucopia
 class cornucopia {
   public:
     template<class T>
@@ -38,7 +37,6 @@ class cornucopia {
     template<class T>
     static std::unordered_map< const cornucopia*, std::unordered_map<std::string, T> > container;
 };
-#undef BLOCK
 
 template<class T>
 std::unordered_map< const cornucopia*, std::unordered_map<std::string, T> > cornucopia::container;

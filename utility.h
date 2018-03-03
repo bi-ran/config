@@ -36,8 +36,8 @@ static inline void trim(std::string& s) {
 }
 
 /* error handling */
-static inline void print_error(std::string name, std::string error, std::string description) {
-    std::cout << "[" << name << "] '" << error << "': " << description << std::endl;
+static inline void print_error(std::string block, std::string object, std::string description) {
+    std::cout << "[" << block << "] " << "'" << object << "' @ " << description << std::endl;
 }
 
 #define STRINGIFY(A) #A
@@ -45,28 +45,30 @@ static inline void print_error(std::string name, std::string error, std::string 
 #define CONCATENATE(A, B) A##B
 #define CONCATENATEMACRO(A, B) CONCATENATE(A, B)
 #define PLACE(A, B) A B
-#define EXPAND() ,,,
+#define EXPAND() ,,,,
 
-#define VA_COUNT(_0, _1, _2, _3, N, ...) N
-#define VA_SIZE(...) PLACE(VA_COUNT, (EXPAND __VA_ARGS__ (), 0, 3, 2, 1) )
+#define VA_COUNT(_0, _1, _2, _3, _4, N, ...) N
+#define VA_SIZE(...) PLACE(VA_COUNT, (EXPAND __VA_ARGS__ (), 0, 4, 3, 2, 1) )
 #define VA_SELECT(NAME, ...) CONCATENATEMACRO(NAME, VA_SIZE(__VA_ARGS__))
 
-#define FATALNOP
-#define FATALCONT continue
-#define FATALRETV return
-#define FATALRETI return 1
-#define FATALEXIT exit(1)
-#define FATAL(LEVEL) CONCATENATEMACRO(FATAL, LEVEL)
+#define NOP
+#define CONT continue
+#define RETV return
+#define RETZ return 0
+#define RETP return 1
+#define RETN return -1
+#define EXIT exit(1)
 
 #define THROW(...) VA_SELECT(THROW, __VA_ARGS__)(__VA_ARGS__)
 
-#define THROW0() THROW3(, "warning", 0)
-#define THROW1(description) THROW3(, description, 0)
-#define THROW2(error, description) THROW3(error, description, 0)
-#define THROW3(error, description, fatal)                       \
-    do {                                                        \
-        print_error(STRINGIFYMACRO(BLOCK), error, description); \
-        FATAL(fatal);                                           \
-    } while (0)                                                 \
+#define THROW0() THROW4(__FILE__, STRINGIFYMACRO(__LINE__), "warning", NOP)
+#define THROW1(description) THROW4(__FILE__, STRINGIFYMACRO(__LINE__), description, NOP)
+#define THROW2(description, action) THROW4(__FILE__, STRINGIFYMACRO(__LINE__), description, action)
+#define THROW3(object, description, action) THROW4(__FILE__, object, description, action)
+#define THROW4(block, object, description, action)                      \
+    do {                                                                \
+        print_error(STRINGIFYMACRO(block), object, description);        \
+        action;                                                         \
+    } while (0)                                                         \
 
 #endif  /* _UTILITY_H */

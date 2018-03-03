@@ -61,7 +61,6 @@ T* constructor() { return new T(); }
     ELEMENT(double),                \
     ELEMENT(std::string)            \
 
-#define BLOCK registry
 class registry {
   public:
 #define ELEMENT(type) REGISTER_TYPE(type)
@@ -76,7 +75,7 @@ class registry {
     template<class T>
     T* construct(std::string& identifier) {
         if (!factory->test<T>(identifier)) {
-            THROW(identifier, "type not supported", EXIT);
+            THROW(registry, identifier, "type not supported", EXIT);
         }
 
         return factory->get<T>(identifier)();
@@ -84,6 +83,5 @@ class registry {
 
     cornucopia* factory;
 };
-#undef BLOCK
 
 #endif  /* _REGISTRY_H */
