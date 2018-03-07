@@ -81,15 +81,14 @@ class configurer {
     char token;
 };
 
-#define ELEMENT(type) type, std::vector<type>
-struct visitor : visitor_base<REGISTRY_TYPELIST> {
+#define TYPE(type) type, std::vector<type>
+struct visitor : visitor_base<REGISTRY_TYPELIST(TYPE)> {
     template<class T>
     T* operator()(std::function<T*()> constructor, std::stringstream& line_stream) {
         T* value = constructor(); line_stream >> (*value);
         return value;
     }
 };
-#undef ELEMENT
 
 void configurer::parse(std::string file) {
     std::ifstream file_stream(file);

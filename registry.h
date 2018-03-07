@@ -43,11 +43,7 @@ T* constructor() { return new T(); }
  *   - istream& operator>>(type& val) is implemented
  */
 
-#define REGISTER_TYPE(identifier)                                           \
-    register_type<identifier>(#identifier),                                 \
-    register_type<std::vector<identifier>>("std::vector<"#identifier">")    \
-
-#define REGISTRY_TYPELIST           \
+#define REGISTRY_TYPELIST(ELEMENT)  \
     ELEMENT(bool),                  \
     ELEMENT(char),                  \
     ELEMENT(short),                 \
@@ -61,11 +57,13 @@ T* constructor() { return new T(); }
     ELEMENT(double),                \
     ELEMENT(std::string)            \
 
+#define REGISTER_TYPE(identifier)                                           \
+    register_type<identifier>(#identifier),                                 \
+    register_type<std::vector<identifier>>("std::vector<"#identifier">")    \
+
 class registry {
   public:
-#define ELEMENT(type) REGISTER_TYPE(type)
-    registry() { REGISTRY_TYPELIST; }
-#undef ELEMENT
+    registry() { REGISTRY_TYPELIST(REGISTER_TYPE); }
 
     template<class T>
     void register_type(const std::string& identifier) {
