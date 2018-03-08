@@ -12,7 +12,8 @@
 template<class T>
 std::ostream& operator<<(std::ostream& s, std::vector<T> v) {
     s << "◆";
-    adjacent_difference(begin(v), end(v), std::ostream_iterator<T>(s), [&s](T a, T)->T { return s << "▪", a;} );
+    adjacent_difference(begin(v), end(v), std::ostream_iterator<T>(s),
+                        [&s](T a, T) -> T { return s << "▪", a;} );
     s << "◆";
     return s;
 }
@@ -36,8 +37,10 @@ static inline void trim(std::string& s) {
 }
 
 /* error handling */
-static inline void print_error(std::string block, std::string object, std::string description) {
-    std::cout << "[" << block << "] " << "'" << object << "' @ " << description << std::endl;
+static inline void print_error(std::string block, std::string object,
+                               std::string description) {
+    std::cout << "[" << block << "] " << "'" << object;
+    std::cout << "' @ " << description << std::endl;
 }
 
 #define STRINGIFY(A) #A

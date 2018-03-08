@@ -29,7 +29,8 @@ struct has_correct_return_type<T, typename std::enable_if<std::is_convertible<de
 /* operator>> overload for std::vector<T> */
 template<class T>
 std::istream& operator>>(std::istream& s, std::vector<T>& v) {
-    std::copy(std::istream_iterator<T>(s), std::istream_iterator<T>(), std::back_inserter(v));
+    std::copy(std::istream_iterator<T>(s), std::istream_iterator<T>(),
+              std::back_inserter(v));
     return s;
 }
 
@@ -72,9 +73,8 @@ class registry {
 
     template<class T>
     T* construct(std::string& identifier) {
-        if (!factory->test<T>(identifier)) {
+        if (!factory->test<T>(identifier))
             THROW(registry, identifier, "type not supported", EXIT);
-        }
 
         return factory->get<T>(identifier)();
     }

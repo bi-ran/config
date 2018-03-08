@@ -44,7 +44,10 @@ class configurer {
         options = new cornucopia();
         token = ' ';
 
-        delimiter::rc = std::vector<std::ctype_base::mask>(std::ctype<char>::classic_table(), std::ctype<char>::classic_table() + std::ctype<char>::table_size);
+        delimiter::rc = std::vector<std::ctype_base::mask>(
+            std::ctype<char>::classic_table(),
+            std::ctype<char>::classic_table() + std::ctype<char>::table_size
+        );
     }
 
     configurer(std::string file) : configurer() { parse(file); }
@@ -72,10 +75,12 @@ class configurer {
     void visit(T&& visitor, std::string identifier, std::iostream& stream);
 
     template<class T, template<class...> class TLIST, class... TYPES>
-    void visit_impl(T&& visitor, std::string identifier, std::iostream& stream, TLIST<TYPES...>);
+    void visit_impl(T&& visitor, std::string identifier, std::iostream& stream,
+                    TLIST<TYPES...>);
 
     template<class T, class U>
-    void visit_impl_helper(T& visitor, std::string identifier, std::iostream& stream);
+    void visit_impl_helper(T& visitor, std::string identifier,
+                           std::iostream& stream);
 
   private:
     registry* types;
@@ -87,17 +92,23 @@ class configurer {
 #define TYPE(type) type, std::vector<type>
 struct create : visitor_base<REGISTRY_TYPELIST(TYPE)> {
     template<class T>
-    void operator()(std::function<T*()> constructor, std::iostream& stream, configurer* config) {
+    void operator()(std::function<T*()> constructor, std::iostream& stream,
+                    configurer* config) {
         stream.imbue(std::locale(std::locale(), new delimiter('=')));
         std::string tag; stream >> tag;
 
-        trim(tag); if (tag.empty()) { THROW(configurer, tag, "warning: empty tag", RETV); }
-        for (char& c : tag) { if (!std::isgraph(c)) { THROW(configurer, tag, "invalid char in tag", EXIT); } }
+        trim(tag);
+        if (tag.empty()) { THROW(configurer, tag, "warning: empty tag", RETV); }
+        for (char& c : tag) {
+            if (!std::isgraph(c))
+                THROW(configurer, tag, "invalid char in tag", EXIT);
+        }
 
         delimiter::reset_table('=');
         stream.ignore(1);
 
-        stream.imbue(std::locale(std::locale(), new delimiter(config->delimiter())));
+        stream.imbue(std::locale(std::locale(),
+                     new delimiter(config->delimiter())));
         T* value = constructor(); stream >> (*value);
 
         delimiter::reset_table(config->delimiter());
@@ -111,8 +122,9 @@ void configurer::parse(std::string file) {
     std::ifstream file_stream(file);
     if (!file_stream) { THROW(configurer, file, "invalid file", EXIT); }
 
-    std::string line;
     std::vector<std::string> lines;
+
+    std::string line;
     while (std::getline(file_stream, line)) {
         ltrim(line); lines.push_back(line);
     }
@@ -141,20 +153,26 @@ void configurer::parse(std::string file) {
 }
 
 template<class T>
-void configurer::visit(T&& visitor, std::string identifier, std::iostream& stream) {
+void configurer::visit(T&& visitor, std::string identifier,
+                       std::iostream& stream) {
     visit_impl(visitor, identifier, stream, typename std::decay_t<T>::types{});
 }
 
 template<class T, template<class...> class TLIST, class... TYPES>
-void configurer::visit_impl(T&& visitor, std::string identifier, std::iostream& stream, TLIST<TYPES...>) {
-    (void)(int []){0, (visit_impl_helper<T, TYPES>(visitor, identifier, stream), 0)...};
+void configurer::visit_impl(T&& visitor, std::string identifier,
+                            std::iostream& stream, TLIST<TYPES...>) {
+    (void)(int []) {
+        0, (visit_impl_helper<T, TYPES>(visitor, identifier, stream), 0)...
+    };
     /* C++ 17 feature required */
     /* (..., visit_impl_helper<std::decay_t<T>, TYPES>(visitor, identifier, stream)); */
 }
 
 template<class T, class U>
-void configurer::visit_impl_helper(T& visitor, std::string identifier, std::iostream& stream) {
-    for (std::pair< std::string, std::function<U*()> > element : cornucopia::container< std::function<U*()> >[types->factory]) {
+void configurer::visit_impl_helper(T& visitor, std::string identifier,
+                                   std::iostream& stream) {
+    for (std::pair< std::string, std::function<U*()> > element :
+            cornucopia::container< std::function<U*()> >[types->factory]) {
         if (!identifier.empty() && identifier != element.first) { continue; }
 
         visitor(element.second, stream, this);
