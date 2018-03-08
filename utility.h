@@ -8,6 +8,14 @@
 #include <algorithm>
 #include <iostream>
 
+/* operator>> overload for std::vector<T> */
+template<class T>
+std::istream& operator>>(std::istream& s, std::vector<T>& v) {
+    std::copy(std::istream_iterator<T>(s), std::istream_iterator<T>(),
+              std::back_inserter(v));
+    return s;
+}
+
 /* operator<< overload for std::vector<T> */
 template<class T>
 std::ostream& operator<<(std::ostream& s, std::vector<T> v) {

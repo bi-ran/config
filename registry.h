@@ -26,14 +26,6 @@ struct has_correct_return_type : std::false_type {};
 template<typename T>
 struct has_correct_return_type<T, typename std::enable_if<std::is_convertible<decltype(std::declval<std::istream&>() >> std::declval<T&>()), std::istream&>::value>::type> : std::true_type {};
 
-/* operator>> overload for std::vector<T> */
-template<class T>
-std::istream& operator>>(std::istream& s, std::vector<T>& v) {
-    std::copy(std::istream_iterator<T>(s), std::istream_iterator<T>(),
-              std::back_inserter(v));
-    return s;
-}
-
 template<class T>
 T* constructor() { return new T(); }
 
