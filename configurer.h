@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <iterator>
+#include <iostream>
 #include <fstream>
 #include <sstream>
 #include <locale>
@@ -62,17 +63,19 @@ class configurer {
     template<class T>
     T get(std::string tag) { return options->get<T>(tag); }
 
+    char delimiter() { return token; }
+
   protected:
     void parse(std::string file);
 
     template<class T>
-    void visit(T&& visitor, std::string identifier, std::stringstream& line_stream);
+    void visit(T&& visitor, std::string identifier, std::iostream& stream);
 
     template<class T, template<class...> class TLIST, class... TYPES>
-    void visit_impl(T&& visitor, std::string identifier, std::stringstream& line_stream, TLIST<TYPES...>);
+    void visit_impl(T&& visitor, std::string identifier, std::iostream& stream, TLIST<TYPES...>);
 
     template<class T, class U>
-    void visit_impl_helper(T& visitor, std::string identifier, std::stringstream& line_stream);
+    void visit_impl_helper(T& visitor, std::string identifier, std::iostream& stream);
 
   private:
     registry* types;
@@ -82,11 +85,25 @@ class configurer {
 };
 
 #define TYPE(type) type, std::vector<type>
-struct visitor : visitor_base<REGISTRY_TYPELIST(TYPE)> {
+struct create : visitor_base<REGISTRY_TYPELIST(TYPE)> {
     template<class T>
-    T* operator()(std::function<T*()> constructor, std::stringstream& line_stream) {
-        T* value = constructor(); line_stream >> (*value);
-        return value;
+    void operator()(std::function<T*()> constructor, std::iostream& stream, configurer* config) {
+        stream.imbue(std::locale(std::locale(), new delimiter('=')));
+        std::string tag; stream >> tag;
+
+        trim(tag); if (tag.empty()) { THROW(configurer, tag, "warning: empty tag", RETV); }
+        for (char& c : tag) { if (!std::isgraph(c)) { THROW(configurer, tag, "invalid char in tag", EXIT); } }
+
+        delimiter::reset_table('=');
+        stream.ignore(1);
+
+        stream.imbue(std::locale(std::locale(), new delimiter(config->delimiter())));
+        T* value = constructor(); stream >> (*value);
+
+        delimiter::reset_table(config->delimiter());
+        if (stream.bad()) { THROW(configurer, tag, "read error", EXIT); }
+
+        config->set(tag, *value);
     }
 };
 
@@ -119,43 +136,28 @@ void configurer::parse(std::string file) {
             continue;
         }
 
-        visit(visitor{}, identifier, line_stream);
+        visit(create{}, identifier, line_stream);
     }
 }
 
 template<class T>
-void configurer::visit(T&& visitor, std::string identifier, std::stringstream& line_stream) {
-    visit_impl(visitor, identifier, line_stream, typename std::decay_t<T>::types{});
+void configurer::visit(T&& visitor, std::string identifier, std::iostream& stream) {
+    visit_impl(visitor, identifier, stream, typename std::decay_t<T>::types{});
 }
 
 template<class T, template<class...> class TLIST, class... TYPES>
-void configurer::visit_impl(T&& visitor, std::string identifier, std::stringstream& line_stream, TLIST<TYPES...>) {
-    (void)(int []){0, (visit_impl_helper<T, TYPES>(visitor, identifier, line_stream), 0)...};
+void configurer::visit_impl(T&& visitor, std::string identifier, std::iostream& stream, TLIST<TYPES...>) {
+    (void)(int []){0, (visit_impl_helper<T, TYPES>(visitor, identifier, stream), 0)...};
     /* C++ 17 feature required */
-    /* (..., visit_impl_helper<std::decay_t<T>, TYPES>(visitor, identifier, line_stream)); */
+    /* (..., visit_impl_helper<std::decay_t<T>, TYPES>(visitor, identifier, stream)); */
 }
 
 template<class T, class U>
-void configurer::visit_impl_helper(T& visitor, std::string identifier, std::stringstream& line_stream) {
+void configurer::visit_impl_helper(T& visitor, std::string identifier, std::iostream& stream) {
     for (std::pair< std::string, std::function<U*()> > element : cornucopia::container< std::function<U*()> >[types->factory]) {
-        if (element.first == identifier) {
-            line_stream.imbue(std::locale(std::locale(), new delimiter('=')));
-            std::string tag; line_stream >> tag;
-            delimiter::reset_table('=');
+        if (!identifier.empty() && identifier != element.first) { continue; }
 
-            line_stream.ignore(1);
-
-            trim(tag); if (tag.empty()) { continue; }
-            for (char& c : tag) { if (!std::isgraph(c)) { THROW(configurer, tag, "invalid char in tag", EXIT); } }
-
-            line_stream.imbue(std::locale(std::locale(), new delimiter(token)));
-            U* value = visitor(element.second, line_stream);
-            delimiter::reset_table(token);
-
-            if (line_stream.bad()) { THROW(configurer, tag, "read error", RETV); }
-
-            set(tag, *value);
-        }
+        visitor(element.second, stream, this);
     }
 }
 
