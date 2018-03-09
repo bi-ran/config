@@ -69,8 +69,6 @@ class configurer {
     template<class T>
     T get(std::string tag) { return options->get<T>(tag); }
 
-    char delimiter() { return token; }
-
   protected:
     void parse(std::string file);
 
@@ -97,8 +95,7 @@ class configurer {
 #define TYPE(type) type, std::vector<type>
 struct create : visitor_base<REGISTRY_TYPELIST(TYPE)> {
     template<class T, typename... VS>
-    void operator()(std::function<T*()> constructor, configurer* config,
-                    std::tuple<VS...> args) {
+    void operator()(std::function<T*()> constructor, std::tuple<VS...> args) {
         std::stringstream& stream = std::get<1>(args);
 
         stream.imbue(std::locale(std::locale(), new delimiter('=')));
@@ -115,21 +112,20 @@ struct create : visitor_base<REGISTRY_TYPELIST(TYPE)> {
         delimiter::reset_table('=');
         stream.ignore(1);
 
-        stream.imbue(std::locale(std::locale(),
-                     new delimiter(config->delimiter())));
+        char token = std::get<2>(args);
+        stream.imbue(std::locale(std::locale(), new delimiter(token)));
         T* value = constructor(); stream >> (*value);
 
-        delimiter::reset_table(config->delimiter());
+        delimiter::reset_table(token);
         if (stream.bad()) { THROW(configurer, tag, "read error", EXIT); }
 
-        config->set(tag, *value);
+        std::get<3>(args)->set(tag, *value);
     }
 };
 
 struct output : visitor_base<REGISTRY_TYPELIST(TYPE)> {
     template<class T, typename... VS>
-    void operator()(std::pair<std::string, T> value, configurer* config,
-                    std::tuple<VS...> args) {
+    void operator()(std::pair<std::string, T> value, std::tuple<VS...> args) {
         std::ostream& stream = std::get<0>(args);
 
         stream << value.first << " = " << value.second << std::endl;
@@ -167,7 +163,7 @@ void configurer::parse(std::string file) {
         }
 
         visit(create{}, types, std::make_tuple(
-            std::move(identifier), std::ref(line_stream))
+            std::move(identifier), std::ref(line_stream), token, this)
         );
     }
 }
@@ -193,7 +189,7 @@ template<class T, typename U, typename... VS>
 void configurer::visit_impl_helper(T& visitor, cornucopia* obj,
                                    std::tuple<VS...> args) {
     for (std::pair<std::string, U> element : cornucopia::container<U>[obj])
-        visitor(element, this, args);
+        visitor(element, args);
 }
 
 template<class T, typename U, typename... VS>
@@ -202,7 +198,7 @@ void configurer::visit_impl_helper(T& visitor, registry* obj,
     for (std::pair<std::string, std::function<U*()>> element :
             cornucopia::container<std::function<U*()>>[obj->factory]) {
         if (element.first == std::get<0>(args))
-            visitor(element.second, this, args);
+            visitor(element.second, args);
     }
 }
 
