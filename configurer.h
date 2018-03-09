@@ -53,8 +53,7 @@ class configurer {
 
     configurer(std::string file) : configurer() { parse(file); }
 
-    void load(std::string file) { parse(file); }
-
+    void parse(std::string file);
     void print(std::ostream& stream);
 
     template<class T>
@@ -70,8 +69,6 @@ class configurer {
     T get(std::string tag) { return options->get<T>(tag); }
 
   protected:
-    void parse(std::string file);
-
     template<class T, template<typename...> class V, typename... VS, class W>
     void visit(T&& visitor, W obj, V<VS...> args);
 
