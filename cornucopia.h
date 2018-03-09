@@ -39,10 +39,10 @@ template<class T>
 std::unordered_map< const cornucopia*, std::unordered_map<std::string, T> > cornucopia::container;
 
 /* visitor pattern */
-template<class...>
+template<typename...>
 struct type_list{};
 
-template<class... TYPES>
+template<typename... TYPES>
 struct visitor_base { using types = type_list<TYPES...>; };
 
 #endif  /* _CORNUCOPIA_H */
