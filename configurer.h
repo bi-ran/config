@@ -8,6 +8,7 @@
 #include <fstream>
 #include <sstream>
 #include <locale>
+#include <ostream>
 
 #include "registry.h"
 #include "cornucopia.h"
@@ -53,6 +54,8 @@ class configurer {
     configurer(std::string file) : configurer() { parse(file); }
 
     void load(std::string file) { parse(file); }
+
+    void print(std::ostream& stream);
 
     template<class T>
     void set(std::string tag, T value) { options->set(tag, value); }
@@ -123,6 +126,16 @@ struct create : visitor_base<REGISTRY_TYPELIST(TYPE)> {
     }
 };
 
+struct output : visitor_base<REGISTRY_TYPELIST(TYPE)> {
+    template<class T, typename... VS>
+    void operator()(std::pair<std::string, T> value, configurer* config,
+                    std::tuple<VS...> args) {
+        std::ostream& stream = std::get<0>(args);
+
+        stream << value.first << " = " << value.second << std::endl;
+    }
+};
+
 void configurer::parse(std::string file) {
     std::ifstream file_stream(file);
     if (!file_stream) { THROW(configurer, file, "invalid file", EXIT); }
@@ -157,6 +170,10 @@ void configurer::parse(std::string file) {
             std::move(identifier), std::ref(line_stream))
         );
     }
+}
+
+void configurer::print(std::ostream& stream = std::cout) {
+    visit(output{}, options, std::make_tuple(std::ref(stream)));
 }
 
 template<class T, template<typename...> class V, typename... VS, class W>
