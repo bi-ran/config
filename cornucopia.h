@@ -4,9 +4,6 @@
 #include <unordered_map>
 #include <string>
 
-#include <vector>
-#include <iostream>
-
 /* class [cornucopia]
  * + container that can hold objects of _different_ types simultaneously
  * $ std::string tag required to identify objects

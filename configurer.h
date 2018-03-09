@@ -3,8 +3,7 @@
 
 #include <string>
 #include <vector>
-#include <iterator>
-#include <iostream>
+#include <functional>
 #include <fstream>
 #include <sstream>
 #include <locale>

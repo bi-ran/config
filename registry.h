@@ -2,7 +2,6 @@
 #define _REGISTRY_H
 
 #include <type_traits>
-#include <iostream>
 #include <functional>
 #include <vector>
 #include <string>

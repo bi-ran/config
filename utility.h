@@ -2,11 +2,11 @@
 #define _UTILITY_H
 
 #include <vector>
-#include <string>
-#include <functional>
-#include <numeric>
-#include <algorithm>
 #include <iostream>
+#include <iterator>
+#include <numeric>
+#include <string>
+#include <algorithm>
 
 /* operator>> overload for std::vector<T> */
 template<class T>
