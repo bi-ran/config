@@ -12,22 +12,22 @@
 class cornucopia {
   public:
     template<class T>
-    void set(std::string tag, T&& value) {
+    void set(const std::string& tag, T&& value) {
         container<T>[this][tag] = value;
     }
 
     template<class T>
-    void unset(std::string tag) {
+    void unset(const std::string& tag) {
         container<T>[this].erase(tag);
     }
 
     template<class T>
-    bool test(std::string tag) {
+    bool test(const std::string& tag) const {
         return container<T>[this].find(tag) != container<T>[this].end();
     }
 
     template<class T>
-    T get(std::string tag) {
+    const T& get(const std::string& tag) const {
         return container<T>[this][tag];
     }
 

@@ -63,7 +63,7 @@ class registry {
     }
 
     template<class T>
-    T* construct(std::string& identifier) {
+    T* construct(const std::string& identifier) const {
         return factory->get<T>(identifier)();
     }
 

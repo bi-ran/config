@@ -52,22 +52,26 @@ class configurer {
         );
     }
 
-    configurer(std::string file) : configurer() { parse(file); }
+    configurer(const std::string& file) : configurer() { parse(file); }
 
-    void parse(std::string file);
+    void parse(const std::string& file);
     void print(std::ostream& stream);
 
     template<class T>
-    void set(std::string tag, T&& value) { options->set(tag, std::forward<T>(value)); }
+    void set(const std::string& tag, T&& value) {
+        options->set(tag, std::forward<T>(value)); }
 
     template<class T>
-    void unset(std::string tag) { options->unset<T>(tag); }
+    void unset(const std::string& tag) {
+        options->unset<T>(tag); }
 
     template<class T>
-    bool test(std::string tag) { return options->test<T>(tag); }
+    bool test(const std::string& tag) const {
+        return options->test<T>(tag); }
 
     template<class T>
-    T get(std::string tag) { return options->get<T>(tag); }
+    const T& get(const std::string& tag) const {
+        return options->get<T>(tag); }
 
   protected:
     template<class T, template<typename...> class V, typename... VS, class W>
@@ -131,7 +135,7 @@ struct output : visitor_base<REGISTRY_TYPELIST(TYPE)> {
     }
 };
 
-void configurer::parse(std::string file) {
+void configurer::parse(const std::string& file) {
     std::ifstream file_stream(file);
     if (!file_stream) { THROW(configurer, file, "invalid file", EXIT); }
 
