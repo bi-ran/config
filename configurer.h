@@ -1,6 +1,7 @@
 #ifndef _CONFIGURER_H
 #define _CONFIGURER_H
 
+#include <utility>
 #include <string>
 #include <vector>
 #include <tuple>
@@ -57,7 +58,7 @@ class configurer {
     void print(std::ostream& stream);
 
     template<class T>
-    void set(std::string tag, T value) { options->set(tag, value); }
+    void set(std::string tag, T&& value) { options->set(tag, std::forward<T>(value)); }
 
     template<class T>
     void unset(std::string tag) { options->unset<T>(tag); }
@@ -116,7 +117,8 @@ struct create : visitor_base<REGISTRY_TYPELIST(TYPE)> {
         delimiter::reset_table(token);
         if (stream.bad()) { THROW(configurer, tag, "read error", EXIT); }
 
-        std::get<3>(args)->set(tag, *value);
+        std::get<3>(args)->set(tag, std::move(*value));
+        delete value;
     }
 };
 

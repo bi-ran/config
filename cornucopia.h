@@ -12,7 +12,7 @@
 class cornucopia {
   public:
     template<class T>
-    void set(std::string tag, const T& value) {
+    void set(std::string tag, T&& value) {
         container<T>[this][tag] = value;
     }
 
