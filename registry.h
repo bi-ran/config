@@ -64,9 +64,6 @@ class registry {
 
     template<class T>
     T* construct(std::string& identifier) {
-        if (!factory->test<T>(identifier))
-            THROW(registry, identifier, "type not supported", EXIT);
-
         return factory->get<T>(identifier)();
     }
 
