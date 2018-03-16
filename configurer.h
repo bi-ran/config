@@ -177,7 +177,7 @@ void configurer::print(std::ostream& stream = std::cout) {
 
 template<class T, template<typename...> class V, typename... VS, class W>
 void configurer::visit(T&& visitor, W obj, V<VS...> args) {
-    visit_impl(typename std::decay_t<T>::types{}, visitor, obj, args);
+    visit_impl(typename std::decay<T>::type::types{}, visitor, obj, args);
 }
 
 template<class T, template<typename...> class U, typename... US,
