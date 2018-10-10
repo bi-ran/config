@@ -149,7 +149,7 @@ void configurer::parse(const std::string& file) {
     for (std::size_t i=0; i<lines.size(); ++i) {
         if (lines[i].empty() || lines[i][0] == '#') { continue; }
 
-        while (lines[i].back() == '\\' && i != lines.size()) {
+        while (lines[i].back() == '\\' && i != lines.size() - 1) {
             lines[i].pop_back(); lines[i].append(lines[i+1]);
             lines.erase(lines.begin()+i+1);
         }
