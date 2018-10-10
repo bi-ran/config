@@ -10,6 +10,7 @@
 #include <sstream>
 #include <locale>
 #include <ostream>
+#include <list>
 
 #include "registry.h"
 #include "cornucopia.h"
@@ -139,22 +140,20 @@ void configurer::parse(const std::string& file) {
     std::ifstream file_stream(file);
     if (!file_stream) { THROW(configurer, file, "invalid file", EXIT); }
 
-    std::vector<std::string> lines;
+    std::list<std::string> lines;
 
     std::string line;
     while (std::getline(file_stream, line)) {
-        ltrim(line); lines.push_back(line);
-    }
+        ltrim(line); lines.emplace_back(std::move(line)); }
 
-    for (std::size_t i=0; i<lines.size(); ++i) {
-        if (lines[i].empty() || lines[i][0] == '#') { continue; }
+    for (auto l = lines.begin(); l != lines.end();) {
+        auto& line = *l; ++l;
+        if (line.empty() || line[0] == '#') { continue; }
 
-        while (lines[i].back() == '\\' && i != lines.size() - 1) {
-            lines[i].pop_back(); lines[i].append(lines[i+1]);
-            lines.erase(lines.begin()+i+1);
-        }
+        while (line.back() == '\\' && l != lines.end()) {
+            line.pop_back(); line.append(*l); l = lines.erase(l); }
 
-        std::stringstream line_stream(lines[i]);
+        std::stringstream line_stream(line);
         std::string identifier; line_stream >> identifier;
 
         trim(identifier);
