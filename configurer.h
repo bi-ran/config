@@ -100,12 +100,9 @@ struct create : visitor_base<REGISTRY_TYPELIST(TYPE)> {
         stream.imbue(std::locale(std::locale(), new delimiter('=')));
         std::string tag; stream >> tag; trim(tag);
 
-        if (tag.empty())
-            THROW(configurer, std::get<0>(args), "warning: empty tag", RETV);
-        for (char& c : tag) {
-            if (!std::isgraph(c))
-                THROW(configurer, tag, "invalid char in tag", EXIT);
-        }
+        if (tag.empty()) {
+            error("configurer", std::get<0>(args), "warning: empty tag");
+            return; }
 
         delimiter::reset_table('=');
         stream.ignore(1);
@@ -115,7 +112,6 @@ struct create : visitor_base<REGISTRY_TYPELIST(TYPE)> {
         T* value = constructor(); stream >> (*value);
 
         delimiter::reset_table(token);
-        if (stream.bad()) { THROW(configurer, tag, "read error", EXIT); }
 
         std::get<3>(args)->set(tag, std::move(*value));
         delete value;
@@ -133,7 +129,7 @@ struct output : visitor_base<REGISTRY_TYPELIST(TYPE)> {
 
 void configurer::parse(const std::string& file) {
     std::ifstream fstream(file);
-    if (!fstream) { THROW(configurer, file, "invalid file", EXIT); }
+    if (!fstream) { error("configurer", file, "invalid file"); exit(1); }
 
     std::list<std::string> lines; std::string line;
     while (std::getline(fstream, line)) {

@@ -42,42 +42,10 @@ static inline void trim(std::string& s) {
     ltrim(s); rtrim(s);
 }
 
-/* error handling */
-static inline void print_error(std::string block, std::string object,
-                               std::string description) {
-    std::cout << "[" << block << "] " << "'" << object << "'"
-        << " @ " << description << std::endl;
+template<typename T, typename U, typename V>
+inline void error(T& module, U& tag, V& message) {
+    std::cout << "[" << module << "]" << " '" << tag << "' "
+        << "@ " << message << std::endl;
 }
-
-#define STRINGIFY(A) #A
-#define STRINGIFYMACRO(A) STRINGIFY(A)
-#define CONCATENATE(A, B) A##B
-#define CONCATENATEMACRO(A, B) CONCATENATE(A, B)
-#define PLACE(A, B) A B
-#define EXPAND() ,,,,
-
-#define VA_COUNT(_0, _1, _2, _3, _4, N, ...) N
-#define VA_SIZE(...) PLACE(VA_COUNT, (EXPAND __VA_ARGS__ (), 0, 4, 3, 2, 1) )
-#define VA_SELECT(NAME, ...) CONCATENATEMACRO(NAME, VA_SIZE(__VA_ARGS__))
-
-#define NOP
-#define CONT continue
-#define RETV return
-#define RETZ return 0
-#define RETP return 1
-#define RETN return -1
-#define EXIT exit(1)
-
-#define THROW(...) VA_SELECT(THROW, __VA_ARGS__)(__VA_ARGS__)
-
-#define THROW0() THROW4(__FILE__, STRINGIFYMACRO(__LINE__), "warning", NOP)
-#define THROW1(description) THROW4(__FILE__, STRINGIFYMACRO(__LINE__), description, NOP)
-#define THROW2(description, action) THROW4(__FILE__, STRINGIFYMACRO(__LINE__), description, action)
-#define THROW3(object, description, action) THROW4(__FILE__, object, description, action)
-#define THROW4(block, object, description, action)                      \
-    do {                                                                \
-        print_error(STRINGIFYMACRO(block), object, description);        \
-        action;                                                         \
-    } while (0)                                                         \
 
 #endif  /* _UTILITY_H */
