@@ -1,18 +1,18 @@
 #ifndef _UTILITY_H
 #define _UTILITY_H
 
-#include <vector>
+#include <algorithm>
 #include <iostream>
 #include <iterator>
 #include <numeric>
 #include <string>
-#include <algorithm>
+#include <vector>
 
 /* operator>> overload for std::vector<T> */
 template<class T>
 std::istream& operator>>(std::istream& s, std::vector<T>& v) {
     std::copy(std::istream_iterator<T>(s), std::istream_iterator<T>(),
-              std::back_inserter(v));
+        std::back_inserter(v));
     return s;
 }
 
@@ -20,8 +20,9 @@ std::istream& operator>>(std::istream& s, std::vector<T>& v) {
 template<class T>
 std::ostream& operator<<(std::ostream& s, std::vector<T> v) {
     s << "◆";
-    adjacent_difference(begin(v), end(v), std::ostream_iterator<T>(s),
-                        [&s](T a, T) -> T { return s << "▪", a;} );
+    std::adjacent_difference(std::begin(v), std::end(v),
+        std::ostream_iterator<T>(s), [&s](T a, T) -> T {
+            return s << "▪", a;} );
     s << "◆";
     return s;
 }
@@ -29,26 +30,23 @@ std::ostream& operator<<(std::ostream& s, std::vector<T> v) {
 /* whitespace trimming for std::string */
 static inline void ltrim(std::string& s) {
     s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int c) {
-        return std::isgraph(c);
-    }));
+        return std::isgraph(c); }));
 }
 
 static inline void rtrim(std::string& s) {
     s.erase(std::find_if(s.rbegin(), s.rend(), [](int c) {
-        return std::isgraph(c);
-    }).base(), s.end());
+        return std::isgraph(c); }).base(), s.end());
 }
 
 static inline void trim(std::string& s) {
-    ltrim(s);
-    rtrim(s);
+    ltrim(s); rtrim(s);
 }
 
 /* error handling */
 static inline void print_error(std::string block, std::string object,
                                std::string description) {
-    std::cout << "[" << block << "] " << "'" << object;
-    std::cout << "' @ " << description << std::endl;
+    std::cout << "[" << block << "] " << "'" << object << "'"
+        << " @ " << description << std::endl;
 }
 
 #define STRINGIFY(A) #A

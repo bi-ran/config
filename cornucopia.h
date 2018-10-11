@@ -1,11 +1,11 @@
 #ifndef _CORNUCOPIA_H
 #define _CORNUCOPIA_H
 
-#include <unordered_map>
 #include <string>
+#include <unordered_map>
 
 /* class [cornucopia]
- * + container that can hold objects of _different_ types simultaneously
+ * + container that holds objects of _different_ types
  * $ std::string tag required to identify objects
  */
 
@@ -13,30 +13,28 @@ class cornucopia {
   public:
     template<class T>
     void set(const std::string& tag, T&& value) {
-        container<T>[this][tag] = value;
-    }
+        container<T>[this][tag] = value; }
 
     template<class T>
     void unset(const std::string& tag) {
-        container<T>[this].erase(tag);
-    }
+        container<T>[this].erase(tag); }
 
     template<class T>
     bool test(const std::string& tag) const {
-        return container<T>[this].find(tag) != container<T>[this].end();
-    }
+        return container<T>[this].find(tag) != container<T>[this].end(); }
 
     template<class T>
     const T& get(const std::string& tag) const {
-        return container<T>[this][tag];
-    }
+        return container<T>[this][tag]; }
 
     template<class T>
-    static std::unordered_map< const cornucopia*, std::unordered_map<std::string, T> > container;
+    static std::unordered_map<const cornucopia*,
+        std::unordered_map<std::string, T>> container;
 };
 
 template<class T>
-std::unordered_map< const cornucopia*, std::unordered_map<std::string, T> > cornucopia::container;
+std::unordered_map<const cornucopia*, std::unordered_map<std::string, T>>
+    cornucopia::container;
 
 /* visitor pattern */
 template<typename...>

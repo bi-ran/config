@@ -1,13 +1,12 @@
 #ifndef _REGISTRY_H
 #define _REGISTRY_H
 
-#include <type_traits>
 #include <functional>
-#include <vector>
 #include <string>
+#include <type_traits>
+#include <vector>
 
 #include "cornucopia.h"
-
 #include "utility.h"
 
 /* SFINAE to check correctness of correct operator>> overload */
@@ -17,13 +16,17 @@ template<typename T, typename = void>
 struct has_extraction_operator : std::false_type {};
 
 template<typename T>
-struct has_extraction_operator<T, void_t<decltype(std::declval<std::istream&>() >> std::declval<T&>())>> : std::true_type {};
+struct has_extraction_operator<T, void_t<
+    decltype(std::declval<std::istream&>()>> std::declval<T&>())>>
+        : std::true_type {};
 
 template<typename T, typename = void>
 struct has_correct_return_type : std::false_type {};
 
 template<typename T>
-struct has_correct_return_type<T, typename std::enable_if<std::is_convertible<decltype(std::declval<std::istream&>() >> std::declval<T&>()), std::istream&>::value>::type> : std::true_type {};
+struct has_correct_return_type<T, typename std::enable_if<std::is_convertible<
+    decltype(std::declval<std::istream&>()>> std::declval<T&>()),
+    std::istream&>::value>::type> : std::true_type {};
 
 template<class T>
 T* constructor() { return new T(); }
@@ -59,13 +62,11 @@ class registry {
 
     template<class T>
     void register_type(const std::string& identifier) {
-        factory->set(identifier, std::function<T*()>(&constructor<T>));
-    }
+        factory->set(identifier, std::function<T*()>(&constructor<T>)); }
 
     template<class T>
     T* construct(const std::string& identifier) const {
-        return factory->get<T>(identifier)();
-    }
+        return factory->get<T>(identifier)(); }
 
     cornucopia* factory;
 };

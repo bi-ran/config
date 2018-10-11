@@ -1,10 +1,9 @@
-#include <vector>
-#include <string>
 #include <iostream>
+#include <string>
+#include <vector>
 
 #include "configurer.h"
 #include "cornucopia.h"
-
 #include "utility.h"
 
 int main(int argc, char* argv[]) {
