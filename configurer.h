@@ -80,13 +80,13 @@ class configurer {
 
     template<class T, template<typename...> class U, typename... US,
              template<typename...> class V, typename... VS, class W>
-    void visit_impl(U<US...>, T&& visitor, W obj, V<VS...> args);
+    void visit_impl(U<US...>, T&& visitor, W obj, V<VS...>& args);
 
     template<class T, typename U, typename... VS>
-    void visit_impl_helper(T& visitor, cornucopia* obj, std::tuple<VS...> args);
+    void visit_impl_helper(T& visitor, cornucopia* obj, std::tuple<VS...>& args);
 
     template<class T, typename U, typename... VS>
-    void visit_impl_helper(T& visitor, registry* obj, std::tuple<VS...> args);
+    void visit_impl_helper(T& visitor, registry* obj, std::tuple<VS...>& args);
 
   private:
     registry* types;
@@ -98,7 +98,7 @@ class configurer {
 #define TYPE(type) type, std::vector<type>
 struct create : visitor_base<REGISTRY_TYPELIST(TYPE)> {
     template<class T, typename... VS>
-    void operator()(std::function<T*()> constructor, std::tuple<VS...> args) {
+    void operator()(std::function<T*()>& constructor, std::tuple<VS...>& args) {
         std::stringstream& stream = std::get<1>(args);
 
         stream.imbue(std::locale(std::locale(), new delimiter('=')));
@@ -129,7 +129,8 @@ struct create : visitor_base<REGISTRY_TYPELIST(TYPE)> {
 
 struct output : visitor_base<REGISTRY_TYPELIST(TYPE)> {
     template<class T, typename... VS>
-    void operator()(std::pair<std::string, T> value, std::tuple<VS...> args) {
+    void operator()(std::pair<const std::string, T>& value,
+            std::tuple<VS...>& args) {
         std::ostream& stream = std::get<0>(args);
 
         stream << value.first << " = " << value.second << std::endl;
@@ -181,7 +182,7 @@ void configurer::visit(T&& visitor, W obj, V<VS...> args) {
 
 template<class T, template<typename...> class U, typename... US,
          template<typename...> class V, typename... VS, class W>
-void configurer::visit_impl(U<US...>, T&& visitor, W obj, V<VS...> args) {
+void configurer::visit_impl(U<US...>, T&& visitor, W obj, V<VS...>& args) {
     (void)(int []) {
         0, (visit_impl_helper<T, US, VS...>(visitor, obj, args), 0)...
     };
@@ -189,15 +190,15 @@ void configurer::visit_impl(U<US...>, T&& visitor, W obj, V<VS...> args) {
 
 template<class T, typename U, typename... VS>
 void configurer::visit_impl_helper(T& visitor, cornucopia* obj,
-                                   std::tuple<VS...> args) {
-    for (std::pair<std::string, U> element : cornucopia::container<U>[obj])
+                                   std::tuple<VS...>& args) {
+    for (auto& element : cornucopia::container<U>[obj])
         visitor(element, args);
 }
 
 template<class T, typename U, typename... VS>
 void configurer::visit_impl_helper(T& visitor, registry* obj,
-                                   std::tuple<VS...> args) {
-    for (std::pair<std::string, std::function<U*()>> element :
+                                   std::tuple<VS...>& args) {
+    for (auto& element :
             cornucopia::container<std::function<U*()>>[obj->factory]) {
         if (element.first == std::get<0>(args))
             visitor(element.second, args);
