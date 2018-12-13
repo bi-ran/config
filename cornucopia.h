@@ -13,7 +13,7 @@ class cornucopia {
   public:
     template<class T>
     void set(const std::string& tag, T&& value) {
-        container<T>[this][tag] = value; }
+        container<T>[this].emplace(tag, std::move(value)); }
 
     template<class T>
     void unset(const std::string& tag) {
