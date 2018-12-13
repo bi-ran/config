@@ -6,6 +6,8 @@
 #include <type_traits>
 #include <vector>
 
+#include "forward.h"
+
 #include "cornucopia.h"
 #include "utility.h"
 
@@ -57,6 +59,8 @@ T* constructor() { return new T(); }
     register_type<std::vector<identifier>>("std::vector<"#identifier">")    \
 
 class registry {
+    friend class configurer;
+
   public:
     registry() { REGISTRY_TYPELIST(REGISTER_TYPE); }
 
@@ -68,6 +72,7 @@ class registry {
     T* construct(const std::string& identifier) const {
         return factory->get<T>(identifier)(); }
 
+  private:
     cornucopia* factory;
 };
 
