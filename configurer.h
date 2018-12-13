@@ -101,8 +101,7 @@ struct create : visitor_base<REGISTRY_TYPELIST(TYPE)> {
         std::string tag; stream >> tag; trim(tag);
 
         if (tag.empty()) {
-            error("configurer", std::get<0>(args), "warning: empty tag");
-            return; }
+            error("configurer", "", "warning: empty tag"); return; }
 
         delimiter::reset_table('=');
         stream.ignore(1);
@@ -143,9 +142,8 @@ void configurer::parse(const std::string& file) {
             line.pop_back(); line.append(*l); l = lines.erase(l); }
 
         std::stringstream lstream(line);
-        std::string type; lstream >> type;
+        std::string type; lstream >> type; trim(type);
 
-        trim(type);
         if (type == "token") {
             delimiter::reset_table(token);
             if (lstream.peek() == EOF) { token = ' '; }
@@ -184,8 +182,8 @@ void configurer::visit_impl_helper(T& visitor, cornucopia* obj,
 template<class T, typename U, typename... VS>
 void configurer::visit_impl_helper(T& visitor, registry* obj,
                                    std::tuple<VS...>& args) {
-    for (auto& element : cornucopia::container<
-            std::function<U*()>>[obj->factory])
+    for (auto& element :
+            cornucopia::container<std::function<U*()>>[obj->factory])
         if (element.first == std::get<0>(args))
             visitor(element.second, args);
 }
