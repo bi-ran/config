@@ -7,7 +7,7 @@
 #include "utility.h"
 
 int main(int argc, char* argv[]) {
-    if (argc != 2) { THROW(argv[0], "[config]", EXIT); }
+    if (argc != 2) { error(argv[0], "", "invalid arguments"); }
 
     /* configurer usage */
     configurer* conf = new configurer(argv[1]);
