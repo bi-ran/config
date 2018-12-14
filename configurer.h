@@ -30,6 +30,9 @@ class configurer {
 
     configurer(const std::string& file) : configurer() { parse(file); }
 
+    ~configurer() { clear(); }
+
+    void clear();
     void parse(const std::string& file);
     void print(std::ostream& stream);
 
@@ -39,6 +42,10 @@ class configurer {
 
     template<class T>
     void unset(const std::string& tag) {
+        options->unset<T>(tag); }
+
+    template<class T>
+    void unset(const std::string& tag, T&) {
         options->unset<T>(tag); }
 
     template<class T>
@@ -82,6 +89,14 @@ struct create : visitor_base<REGISTRY_TYPELIST(TYPE)> {
     }
 };
 
+struct destroy : visitor_base<REGISTRY_TYPELIST(TYPE)> {
+    template<class T, typename... VS>
+    void operator()(std::pair<const std::string, T>& value,
+            std::tuple<VS...>& args) {
+        std::get<0>(args)->unset(value.first, value.second);
+    }
+};
+
 struct output : visitor_base<REGISTRY_TYPELIST(TYPE)> {
     template<class T, typename... VS>
     void operator()(std::pair<const std::string, T>& value,
@@ -90,6 +105,10 @@ struct output : visitor_base<REGISTRY_TYPELIST(TYPE)> {
         stream << value.first << " = " << value.second << std::endl;
     }
 };
+
+void configurer::clear() {
+    visit(destroy{}, options, std::make_tuple(this));
+}
 
 void configurer::parse(const std::string& file) {
     std::ifstream fstream(file);
