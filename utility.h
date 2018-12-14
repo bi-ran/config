@@ -42,6 +42,28 @@ static inline void trim(std::string& s) {
     ltrim(s); rtrim(s);
 }
 
+/* delimiter class for c++ streams */
+struct delimiter : std::ctype<char> {
+    delimiter(char token) : std::ctype<char>(get_table(token), false, 0) {}
+
+    static std::vector<std::ctype_base::mask> rc;
+
+    static const std::ctype_base::mask* get_table(char token) {
+        set_table(token); return &rc[0]; }
+
+    static void set_table(char token) {
+        rc[' '] &= ~std::ctype_base::space;
+        rc[token] |= std::ctype_base::space;
+    }
+
+    static void reset_table(char token) {
+        rc[' '] |= std::ctype_base::space;
+        rc[token] &= ~std::ctype_base::space;
+    }
+};
+
+std::vector<std::ctype_base::mask> delimiter::rc;
+
 /* generic error message */
 template<typename T, typename U, typename V>
 inline void error(T& module, U& tag, V& message) {
