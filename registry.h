@@ -11,25 +11,6 @@
 #include "cornucopia.h"
 #include "utility.h"
 
-/* SFINAE to check correctness of correct operator>> overload */
-template<typename ...> using void_t = void;
-
-template<typename T, typename = void>
-struct has_extraction_operator : std::false_type {};
-
-template<typename T>
-struct has_extraction_operator<T, void_t<
-    decltype(std::declval<std::istream&>()>> std::declval<T&>())>>
-        : std::true_type {};
-
-template<typename T, typename = void>
-struct has_correct_return_type : std::false_type {};
-
-template<typename T>
-struct has_correct_return_type<T, typename std::enable_if<std::is_convertible<
-    decltype(std::declval<std::istream&>()>> std::declval<T&>()),
-    std::istream&>::value>::type> : std::true_type {};
-
 template<class T>
 T* constructor() { return new T(); }
 
