@@ -158,10 +158,9 @@ void configurer::visit_impl_helper(T& visitor, cornucopia* obj,
 template<class T, typename U, typename... VS>
 void configurer::visit_impl_helper(T& visitor, registry* obj,
                                    std::tuple<VS...>& args) {
-    for (auto& element :
-            cornucopia::container<std::function<U*()>>[obj->factory])
-        if (element.first == std::get<0>(args))
-            visitor(element.second, args);
+    const auto& key = std::get<0>(args);
+    auto& instance = cornucopia::container<std::function<U*()>>[obj->factory];
+    if (instance.count(key)) { visitor(instance[key], args); }
 }
 
 #endif  /* _CONFIGURER_H */
