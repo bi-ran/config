@@ -42,6 +42,7 @@ static inline void trim(std::string& s) {
     ltrim(s); rtrim(s);
 }
 
+/* generic error message */
 template<typename T, typename U, typename V>
 inline void error(T& module, U& tag, V& message) {
     std::cout << "[" << module << "]" << " '" << tag << "' "
