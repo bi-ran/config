@@ -95,24 +95,10 @@ class configurer {
 struct create : visitor_base<REGISTRY_TYPELIST(TYPE)> {
     template<class T, typename... VS>
     void operator()(std::function<T*()>& constructor, std::tuple<VS...>& args) {
-        std::stringstream& stream = std::get<1>(args);
-
-        stream.imbue(std::locale(std::locale(), new delimiter('=')));
-        std::string tag; stream >> tag; trim(tag);
-
-        if (tag.empty()) {
-            error("configurer", "", "warning: empty tag"); return; }
-
-        delimiter::reset_table('=');
-        stream.ignore(1);
-
-        char token = std::get<2>(args);
-        stream.imbue(std::locale(std::locale(), new delimiter(token)));
+        std::stringstream& stream = std::get<2>(args);
         T* value = constructor(); stream >> (*value);
 
-        delimiter::reset_table(token);
-
-        std::get<3>(args)->set(tag, std::move(*value));
+        std::get<3>(args)->set(std::get<1>(args), std::move(*value));
         delete value;
     }
 };
@@ -151,8 +137,19 @@ void configurer::parse(const std::string& file) {
             continue;
         }
 
+        lstream.imbue(std::locale(std::locale(), new delimiter('=')));
+        std::string tag; lstream >> tag; trim(tag);
+
+        if (tag.empty()) {
+            error("configurer", type, "warning: empty tag"); return; }
+
+        delimiter::reset_table('='); lstream.ignore(1);
+        lstream.imbue(std::locale(std::locale(), new delimiter(token)));
+
         visit(create{}, types, std::make_tuple(
-            std::move(type), std::ref(lstream), token, this));
+            std::move(type), std::move(tag), std::ref(lstream), this));
+
+        delimiter::reset_table(token);
     }
 }
 
