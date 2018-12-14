@@ -19,11 +19,11 @@ std::istream& operator>>(std::istream& s, std::vector<T>& v) {
 /* operator<< overload for std::vector<T> */
 template<class T>
 std::ostream& operator<<(std::ostream& s, std::vector<T> v) {
-    s << "◆";
+    s << "█";
     std::adjacent_difference(std::begin(v), std::end(v),
         std::ostream_iterator<T>(s), [&s](T a, T) -> T {
-            return s << "▪", a;} );
-    s << "◆";
+            return s << "█", a;} );
+    s << "█";
     return s;
 }
 
