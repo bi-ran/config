@@ -43,10 +43,15 @@ static inline void trim(std::string& s) {
 }
 
 /* delimiter class for c++ streams */
-struct delimiter : std::ctype<char> {
+class delimiter : public std::ctype<char> {
+  public:
     delimiter(char token) : std::ctype<char>(get_table(token), false, 0) {}
 
-    static std::vector<std::ctype_base::mask> rc;
+    static void init_table() {
+        rc = std::vector<std::ctype_base::mask>(
+            std::ctype<char>::classic_table(),
+            std::ctype<char>::classic_table() + std::ctype<char>::table_size);
+    }
 
     static const std::ctype_base::mask* get_table(char token) {
         set_table(token); return &rc[0]; }
@@ -60,9 +65,10 @@ struct delimiter : std::ctype<char> {
         rc[' '] |= std::ctype_base::space;
         rc[token] &= ~std::ctype_base::space;
     }
-};
 
-std::vector<std::ctype_base::mask> delimiter::rc;
+  private:
+    static std::vector<std::ctype_base::mask> rc;
+};
 
 /* generic error message */
 template<typename T, typename U, typename V>

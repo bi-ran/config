@@ -16,16 +16,16 @@
 #include "registry.h"
 #include "utility.h"
 
+std::vector<std::ctype_base::mask> delimiter::rc;
+
 class configurer {
   public:
     configurer() {
         types = new registry();
         options = new cornucopia();
-        token = ' ';
 
-        delimiter::rc = std::vector<std::ctype_base::mask>(
-            std::ctype<char>::classic_table(),
-            std::ctype<char>::classic_table() + std::ctype<char>::table_size);
+        token = ' ';
+        delimiter::init_table();
     }
 
     configurer(const std::string& file) : configurer() { parse(file); }
