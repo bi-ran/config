@@ -170,7 +170,7 @@ void configurer::visit_impl(U<US...>, T&& visitor, W obj, V<VS...>& args) {
 template<class T, typename U, typename... VS>
 void configurer::visit_impl_helper(T& visitor, cornucopia* obj,
                                    std::tuple<VS...>& args) {
-    for (auto& element : cornucopia::container<U>[obj])
+    for (auto& element : cornucopia::open<U>(obj))
         visitor(element, args);
 }
 
@@ -178,7 +178,7 @@ template<class T, typename U, typename... VS>
 void configurer::visit_impl_helper(T& visitor, registry* obj,
                                    std::tuple<VS...>& args) {
     const auto& key = std::get<0>(args);
-    auto& instance = cornucopia::container<std::function<U*()>>[obj->factory];
+    auto& instance = cornucopia::open<std::function<U*()>>(obj->factory);
     if (instance.count(key)) { visitor(instance[key], args); }
 }
 

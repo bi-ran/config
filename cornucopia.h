@@ -28,6 +28,11 @@ class cornucopia {
         return container<T>[this][tag]; }
 
     template<class T>
+    static decltype(auto) open(const cornucopia* obj) {
+        return container<T>[obj]; }
+
+  private:
+    template<class T>
     static std::unordered_map<const cornucopia*,
         std::unordered_map<std::string, T>> container;
 };
