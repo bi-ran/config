@@ -1,17 +1,18 @@
 @ headers
 
-utility.h
+include/utility.h
   $ operator<< for std::vector
-  $ error handling cpp macros
+  $ whitespace trimming for std::string
+  $ delimiter class for std::string parsing
 
-cornucopia.h
+include/cornucopia.h
   $ container of everything
   > requires --std=c++14
 
-registry.h
+include/registry.h
   $ factory: constructs object given type (std::string)
 
-configurer.h
+include/configurer.h
   $ configuration parser
   > requires --std=c++14
 
@@ -19,5 +20,6 @@ examples:
   + example.cpp
   + example.conf
 
-  clang++ --std=c++14 example.cpp -o example -O2
+  make -j8
+  g++ -std=c++14 example.cpp -o example -O2 -L./lib -lconf
   ./example example.conf
