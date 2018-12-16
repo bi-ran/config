@@ -5,3 +5,7 @@
 
 # temporary files
 *.swp
+
+# build directories
+build/
+lib/

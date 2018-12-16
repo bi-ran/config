@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <iostream>
 #include <iterator>
+#include <locale>
 #include <numeric>
 #include <string>
 #include <vector>
@@ -54,7 +55,8 @@ class delimiter : public std::ctype<char> {
     }
 
     static const std::ctype_base::mask* get_table(char token) {
-        set_table(token); return &rc[0]; }
+        set_table(token); return &rc[0];
+    }
 
     static void set_table(char token) {
         rc[' '] &= ~std::ctype_base::space;

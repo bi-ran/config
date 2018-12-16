@@ -2,9 +2,7 @@
 #include <string>
 #include <vector>
 
-#include "configurer.h"
-#include "cornucopia.h"
-#include "utility.h"
+#include "include/configurer.h"
 
 int main(int argc, char* argv[]) {
     if (argc != 2) { error(argv[0], "", "invalid arguments"); }
