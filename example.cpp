@@ -5,7 +5,10 @@
 #include "include/configurer.h"
 
 int main(int argc, char* argv[]) {
-    if (argc != 2) { error(argv[0], "", "invalid arguments"); }
+    if (argc != 2) {
+        error(argv[0], "", "invalid arguments");
+        return 1;
+    }
 
     /* configurer usage */
     configurer* conf = new configurer(argv[1]);
