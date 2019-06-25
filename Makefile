@@ -15,7 +15,7 @@ DEPS = $(patsubst $(SRCDIR)/%.cpp,$(BUILDDIR)/%.d,$(SRCS))
 
 $(LIBDIR)/$(LIBCONF): $(OBJS)
 	@mkdir -p $(LIBDIR)
-	ar rcu $@ $^
+	ar rc $@ $^
 	ranlib $@
 
 $(BUILDDIR)/%.o : $(SRCDIR)/%.cpp
