@@ -23,10 +23,10 @@ T* constructor() { return new T(); }
 
 #define REGISTRY_TYPELIST(ELEMENT)  \
     ELEMENT(bool),                  \
-    ELEMENT(char),                  \
-    ELEMENT(short),                 \
-    ELEMENT(int),                   \
-    ELEMENT(long),                  \
+    ELEMENT(int8_t),                \
+    ELEMENT(int16_t),               \
+    ELEMENT(int32_t),               \
+    ELEMENT(int64_t),               \
     ELEMENT(uint8_t),               \
     ELEMENT(uint16_t),              \
     ELEMENT(uint32_t),              \
